@@ -1,0 +1,1039 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=yes, viewport-fit=cover">
+  <title>⛵️ 财务自由·年数计算器 v1.6</title>
+  <style>
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      background: linear-gradient(155deg, #e9f3ee 0%, #d4e3db 100%);
+      min-height: 100vh;
+      padding: 20px;
+      font-family: 'Inter', 'Segoe UI', 'Roboto', system-ui, -apple-system, sans-serif;
+      display: flex;
+      justify-content: center;
+      align-items: flex-start;
+    }
+
+    .app-container {
+      max-width: 1380px;
+      width: 100%;
+      background: rgba(255, 255, 255, 0.8);
+      backdrop-filter: blur(24px);
+      -webkit-backdrop-filter: blur(24px);
+      border-radius: 48px;
+      box-shadow: 0 25px 50px -12px rgba(20, 60, 40, 0.25), 0 4px 12px rgba(0, 0, 0, 0.05);
+      padding: 32px 32px 36px;
+      border: 1px solid rgba(200, 225, 210, 0.5);
+      transition: all 0.2s;
+    }
+
+    h1 {
+      font-weight: 650;
+      font-size: 2.2rem;
+      letter-spacing: -0.02em;
+      color: #173e2c;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      margin-bottom: 8px;
+    }
+
+    h1 span.version-tag {
+      font-size: 1rem;
+      background: #cbdcd2;
+      padding: 4px 16px;
+      border-radius: 60px;
+      font-weight: 500;
+      color: #1a4a33;
+      letter-spacing: 0.3px;
+      box-shadow: inset 0 1px 2px rgba(255,255,255,0.6), 0 2px 4px rgba(0,0,0,0.02);
+    }
+
+    .subtitle {
+      color: #2e5c45;
+      margin-bottom: 28px;
+      font-size: 1.1rem;
+      padding-left: 12px;
+      border-left: 5px solid #359872;
+      font-weight: 450;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .section-card {
+      background: rgba(255, 255, 255, 0.75);
+      backdrop-filter: blur(8px);
+      -webkit-backdrop-filter: blur(8px);
+      border-radius: 32px;
+      padding: 22px 24px 18px;
+      margin-bottom: 26px;
+      box-shadow: 0 8px 20px -6px rgba(30, 60, 40, 0.08), 0 2px 6px rgba(0,0,0,0.02);
+      border: 1px solid rgba(210, 230, 215, 0.6);
+      transition: box-shadow 0.2s;
+    }
+
+    .section-card:hover {
+      box-shadow: 0 16px 28px -10px rgba(30, 70, 50, 0.12);
+    }
+
+    .section-header {
+      display: flex;
+      align-items: baseline;
+      justify-content: space-between;
+      margin-bottom: 18px;
+      flex-wrap: wrap;
+    }
+
+    .section-title {
+      font-weight: 650;
+      font-size: 1.4rem;
+      color: #1b4a34;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      letter-spacing: -0.01em;
+    }
+
+    .section-total {
+      font-weight: 600;
+      color: #0f3629;
+      background: #e2f0e8;
+      padding: 6px 20px;
+      border-radius: 60px;
+      font-size: 1rem;
+      box-shadow: inset 0 1px 2px #fff, 0 2px 4px rgba(0,0,0,0.02);
+      border: 1px solid #bcd9cb;
+    }
+
+    .items-list {
+      display: flex;
+      flex-direction: column;
+      gap: 14px;
+      margin-bottom: 12px;
+    }
+
+    .list-header {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 8px 16px;
+      margin-bottom: 6px;
+      font-weight: 600;
+      color: #235f44;
+      font-size: 0.85rem;
+      text-transform: uppercase;
+      letter-spacing: 0.3px;
+      border-bottom: 2px solid #c0dbcf;
+    }
+
+    .header-name { flex: 1.2 1 120px; min-width: 100px; }
+    .header-amount { flex: 1 1 90px; min-width: 90px; }
+    .header-return { flex: 0.8 1 75px; min-width: 70px; }
+    .header-passive { flex: 0.8 1 85px; min-width: 80px; }
+    .header-rate { flex: 0.7 1 70px; min-width: 65px; }
+    .header-type { flex: 0.8 1 80px; min-width: 80px; }
+    .header-action { width: 40px; flex-shrink: 0; }
+
+    .item-row {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      flex-wrap: nowrap;
+      background: #ffffffec;
+      padding: 10px 18px;
+      border-radius: 60px;
+      border: 1px solid #d0e2d8;
+      box-shadow: 0 2px 6px rgba(0,0,0,0.02);
+      transition: border 0.15s, box-shadow 0.15s;
+    }
+
+    .item-row:focus-within {
+      border-color: #359872;
+      box-shadow: 0 0 0 3px rgba(53, 152, 114, 0.15);
+      background: #ffffff;
+    }
+
+    .item-name { flex: 1.2 1 120px; min-width: 100px; }
+    .item-amount { flex: 1 1 90px; min-width: 90px; }
+    .item-return { flex: 0.8 1 75px; min-width: 70px; }
+    .item-passive { flex: 0.8 1 85px; min-width: 80px; }
+    .item-rate { flex: 0.7 1 70px; min-width: 65px; }
+    .item-type { flex: 0.8 1 80px; min-width: 80px; }
+
+    .item-name input,
+    .item-amount input,
+    .item-return input,
+    .item-passive input,
+    .item-rate input,
+    .item-type select {
+      width: 100%;
+      padding: 12px 12px;
+      border: 1px solid #c7ddd1;
+      border-radius: 40px;
+      font-size: 0.95rem;
+      background: #fdfdfd;
+      outline: none;
+      transition: all 0.15s;
+      font-weight: 450;
+      color: #153729;
+    }
+
+    .item-name input:focus,
+    .item-amount input:focus,
+    .item-return input:focus,
+    .item-passive input:focus,
+    .item-rate input:focus,
+    .item-type select:focus {
+      border-color: #2a9d7a;
+      background: #ffffff;
+      box-shadow: 0 0 0 2px rgba(42, 157, 122, 0.1);
+    }
+
+    .readonly-input {
+      background: #eef5f1 !important;
+      color: #1f4f3a;
+      font-weight: 500;
+      border-color: #bed9ce !important;
+    }
+
+    .delete-btn {
+      background: none;
+      border: none;
+      font-size: 1.5rem;
+      cursor: pointer;
+      color: #7fa392;
+      padding: 8px 0;
+      width: 44px;
+      text-align: center;
+      flex-shrink: 0;
+      border-radius: 40px;
+      transition: all 0.15s;
+    }
+
+    .delete-btn:hover {
+      background: #f4dbd2;
+      color: #b55c45;
+    }
+
+    .add-btn {
+      background: #ecf6f0;
+      border: 1.5px dashed #4e9e7e;
+      color: #1e5c41;
+      padding: 12px 24px;
+      border-radius: 60px;
+      font-weight: 600;
+      font-size: 0.95rem;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      margin-top: 8px;
+      transition: all 0.2s;
+      box-shadow: 0 2px 6px rgba(0,0,0,0.02);
+    }
+
+    .add-btn:hover {
+      background: #d6eade;
+      border: 1.5px solid #2f8b6b;
+      box-shadow: 0 6px 12px rgba(47, 139, 107, 0.08);
+    }
+
+    .weighted-badge {
+      background: #d7eae1;
+      border-radius: 40px;
+      padding: 4px 16px;
+      font-size: 0.9rem;
+      font-weight: 600;
+      color: #0f3e2a;
+    }
+
+    .core-params-card {
+      background: #e2efe7;
+      border-radius: 36px;
+      padding: 20px 28px;
+      margin-bottom: 30px;
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      gap: 24px 48px;
+      border: 1px solid #c2dbcf;
+      box-shadow: inset 0 1px 3px #fff, 0 8px 16px -8px rgba(30,70,50,0.1);
+    }
+
+    .param-item-inline {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .param-item-inline label {
+      font-weight: 600;
+      color: #1b4a34;
+      font-size: 1rem;
+    }
+
+    .param-item-inline input,
+    .param-item-inline select {
+      padding: 10px 18px;
+      border-radius: 60px;
+      border: 1px solid #b8d5c5;
+      background: white;
+      font-size: 0.95rem;
+      font-weight: 500;
+      color: #153729;
+      box-shadow: 0 2px 4px rgba(0,0,0,0.02);
+    }
+
+    .asset-liability-row {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 24px;
+      margin-bottom: 26px;
+    }
+
+    @media (max-width: 750px) {
+      .asset-liability-row { grid-template-columns: 1fr; }
+      .item-row { flex-wrap: wrap; }
+      .app-container { padding: 20px 18px; }
+    }
+
+    .net-worth-badge {
+      background: #d7eae1;
+      padding: 6px 20px;
+      border-radius: 60px;
+      font-weight: 700;
+      color: #0e3927;
+    }
+
+    .card-bottom-param {
+      margin-top: 20px;
+      padding-top: 16px;
+      border-top: 1.5px dashed #b5d3c4;
+      display: flex;
+      align-items: center;
+      gap: 20px;
+    }
+
+    .actions-bar {
+      display: flex;
+      gap: 20px;
+      margin: 28px 0 24px;
+      flex-wrap: wrap;
+    }
+
+    .btn {
+      background: #e6f2eb;
+      border: 1px solid #b4d3c2;
+      padding: 14px 34px;
+      border-radius: 60px;
+      font-weight: 600;
+      font-size: 1rem;
+      color: #1a4e36;
+      cursor: pointer;
+      transition: all 0.2s;
+      box-shadow: 0 4px 10px rgba(0,0,0,0.02);
+    }
+
+    .btn-primary {
+      background: #1e5c41;
+      border-color: #1e5c41;
+      color: white;
+      box-shadow: 0 12px 20px -8px rgba(30, 92, 65, 0.3);
+    }
+
+    .btn-primary:hover {
+      background: #277a56;
+      transform: translateY(-1px);
+    }
+
+    .btn:hover {
+      background: #daece3;
+    }
+
+    .result-panel {
+      background: #e3f1e9;
+      border-radius: 36px;
+      padding: 28px 32px;
+      border: 1px solid #c3ddcf;
+      box-shadow: inset 0 2px 4px #ffffff, 0 12px 24px -12px rgba(20,60,40,0.2);
+    }
+
+    .freedom-year {
+      font-size: 4rem;
+      font-weight: 750;
+      color: #0c3724;
+      line-height: 1.2;
+      letter-spacing: -0.02em;
+    }
+
+    .stats-flex {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 28px 48px;
+      margin: 24px 0 16px;
+    }
+
+    .stat-cell .label {
+      font-size: 0.8rem;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      color: #3b6a53;
+      margin-bottom: 4px;
+    }
+
+    .stat-cell .value {
+      font-size: 2rem;
+      font-weight: 700;
+      color: #153f2c;
+    }
+
+    .progress-bg {
+      height: 12px;
+      background: #c7ddd1;
+      border-radius: 40px;
+      overflow: hidden;
+      box-shadow: inset 0 2px 3px rgba(0,0,0,0.05);
+    }
+
+    .progress-fill {
+      height: 12px;
+      background: #1e5c41;
+      width: 0%;
+      border-radius: 40px;
+      box-shadow: 0 0 8px #2f8b6b;
+    }
+
+    .passive-highlight {
+      background: #cde2d8;
+      border-radius: 28px;
+      padding: 18px 24px;
+      margin-top: 20px;
+      border: 1px solid #b1cfbf;
+    }
+
+    .income-summary {
+      display: flex;
+      gap: 32px;
+      margin-top: 12px;
+    }
+
+    .toggle-section { margin-top: 16px; }
+    .toggle-header {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      cursor: pointer;
+      font-weight: 600;
+      color: #1c573f;
+    }
+
+    .toggle-content {
+      margin-top: 16px;
+      padding: 12px 0;
+      border-top: 1.5px dashed #b3d1c1;
+    }
+
+    .footnote {
+      font-size: 0.85rem;
+      color: #447a5f;
+      margin-top: 20px;
+      font-weight: 450;
+    }
+
+    .hint-badge {
+      background: #d4e7dd;
+      border-radius: 30px;
+      padding: 2px 12px;
+      font-weight: 500;
+    }
+
+    /* 增加图标间距 */
+    .section-title i { font-style: normal; font-size: 1.5rem; }
+  </style>
+</head>
+<body>
+<div class="app-container">
+  <h1>
+    🏝️ 财务自由·年数计算器 
+    <span class="version-tag">v1.6</span>
+  </h1>
+  <div class="subtitle">
+    <span>✨</span> 输入你的财务数据 · 被动收入覆盖支出或4%规则（基于净资产）· 含负债利息
+  </div>
+
+  <!-- 核心参数 -->
+  <div class="core-params-card">
+    <div class="param-item-inline">
+      <label>🎯 自由标准</label>
+      <select id="freedomMode" style="width:190px;">
+        <option value="passive" selected>💰 被动收入 ≥ 总支出</option>
+        <option value="traditional">📊 传统4%规则 (基于净资产)</option>
+      </select>
+    </div>
+    <div class="param-item-inline">
+      <label>🎯 安全提款率 %</label>
+      <input type="number" id="withdrawalRate" value="4.0" step="0.1" min="0.5" max="15" style="width:100px;">
+    </div>
+    <div class="param-item-inline">
+      <label>🎂 当前年龄</label>
+      <input type="number" id="currentAge" placeholder="选填" step="1" min="0" max="100" style="width:100px;">
+    </div>
+    <div class="param-item-inline">
+      <label>⏳ 最长模拟年</label>
+      <input type="number" id="maxYears" value="80" step="5" min="20" max="120" style="width:100px;">
+    </div>
+  </div>
+
+  <!-- 资产负债摘要 + 负债明细 -->
+  <div class="asset-liability-row">
+    <div class="section-card">
+      <div class="section-header"><span class="section-title"><span>📦</span> 资产摘要</span></div>
+      <div style="margin-bottom:20px;"><div style="color:#2a5e45; margin-bottom:4px;">总资产 (投资组合)</div><div style="font-size:2.8rem; font-weight:700; color:#0c3724;" id="totalAssetSummary">¥0</div></div>
+      <div style="margin-bottom:16px;"><div style="color:#2a5e45;">总负债</div><div style="font-size:1.8rem; font-weight:600;" id="totalLiabilitySummary">¥0</div></div>
+      <div><div style="font-weight:600; color:#1b4a34;">📊 可投资净资产</div><div style="font-size:2.3rem; font-weight:700; color:#0e3927;" id="netWorthSummary">¥0</div></div>
+      <div style="margin-top:22px; font-size:0.9rem; color:#3e7359;">* 净资产用于传统4%规则门槛计算</div>
+      <div class="toggle-section">
+        <div class="toggle-header" id="toggleOtherAssets">
+          <span>🏠 其他资产 (非投资性)  ▼</span>
+        </div>
+        <div class="toggle-content" id="otherAssetsPanel" style="display: none;">
+          <div class="list-header"><span class="header-name">项目</span><span class="header-amount">估值</span><span class="header-action"></span></div>
+          <div id="otherAssetsList" class="items-list"></div>
+          <button class="add-btn" id="addOtherAssetBtn">➕ 添加 (不计入自由计算)</button>
+          <div style="font-size:0.8rem; margin-top:8px; color:#547a67;">自住房、汽车等，仅作参考</div>
+        </div>
+      </div>
+    </div>
+    <div class="section-card">
+      <div class="section-header">
+        <span class="section-title"><span>📉</span> 负债明细 (含利息)</span>
+        <span class="section-total" id="totalLiabilityDisplay">¥0</span>
+      </div>
+      <div class="list-header">
+        <span class="header-name">负债项目</span>
+        <span class="header-amount">本金</span>
+        <span class="header-rate">年利率%</span>
+        <span class="header-amount">年利息</span>
+        <span class="header-action"></span>
+      </div>
+      <div id="liabilityList" class="items-list"></div>
+      <button class="add-btn" id="addLiabilityBtn">➕ 添加负债</button>
+      <div style="margin-top:20px; display:flex; justify-content:space-between; background:#e2efe7; padding:12px 18px; border-radius:60px;">
+        <span style="font-weight:600;">💸 年利息总额</span>
+        <span id="totalInterestDisplay" style="font-weight:700; font-size:1.2rem;">¥0</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- 投资组合 -->
+  <div class="section-card">
+    <div class="section-header">
+      <span class="section-title"><span>📊</span> 投资组合</span>
+      <span class="section-total" id="totalAssetDisplay">¥0</span>
+    </div>
+    <div class="list-header">
+      <span class="header-name">投资标的</span>
+      <span class="header-amount">金额</span>
+      <span class="header-return">总回报%<span style="font-weight:400;">(年化)</span></span>
+      <span class="header-passive">股息/分红%<span style="font-weight:400;">(年化)</span></span>
+      <span class="header-action"></span>
+    </div>
+    <div id="investmentList" class="items-list"></div>
+    <button class="add-btn" id="addInvestmentBtn">➕ 添加投资</button>
+    <div style="margin-top:16px; display:flex; gap:24px; flex-wrap:wrap;">
+      <span>📈 加权总回报: <span id="weightedReturnDisplay" class="weighted-badge">0.0%</span></span>
+      <span>💵 加权股息率: <span id="weightedPassiveDisplay" class="weighted-badge">0.0%</span></span>
+    </div>
+  </div>
+
+  <!-- 收入 -->
+  <div class="section-card">
+    <div class="section-header">
+      <span class="section-title"><span>💰</span> 年收入构成</span>
+      <span class="section-total" id="totalIncomeDisplay">¥0</span>
+    </div>
+    <div style="margin-bottom:16px; background:#e3efe8; border-radius:24px; padding:10px 20px; font-size:0.9rem; border-left:5px solid #2a9d7a;">
+      💡 <strong>主动收入</strong>：工资、劳务报酬等需持续付出劳动的收入。<br>
+      💡 <strong>被动收入</strong>：股息、租金、版权等无需持续劳动的收入（<strong>不随增长率变化</strong>）。
+    </div>
+    <div class="list-header"><span class="header-name">类型</span><span class="header-amount">金额</span><span class="header-type">主动/被动</span><span class="header-action"></span></div>
+    <div id="incomeList" class="items-list"></div>
+    <button class="add-btn" id="addIncomeBtn">➕ 添加收入</button>
+    <div class="income-summary">
+      <span>💼 主动: <strong id="activeIncomeSum" style="font-size:1.2rem;">¥0</strong></span>
+      <span>💤 被动: <strong id="passiveIncomeSum" style="font-size:1.2rem;">¥0</strong></span>
+    </div>
+    <div class="card-bottom-param">
+      <label style="font-weight:600;">📈 主动收入年增长 %</label>
+      <input type="number" id="incomeGrowth" value="2.5" step="0.1" min="0" max="20" style="width:100px; padding:10px;">
+      <span style="color:#3a7358;">仅应用于主动收入，被动收入固定</span>
+    </div>
+  </div>
+
+  <!-- 支出 -->
+  <div class="section-card">
+    <div class="section-header"><span class="section-title"><span>🧾</span> 年支出明细 (含负债利息)</span><span class="section-total" id="totalExpenseDisplay">¥0</span></div>
+    <div class="list-header"><span class="header-name">类型</span><span class="header-amount">金额</span><span class="header-action"></span></div>
+    <div id="expenseList" class="items-list"></div>
+    <button class="add-btn" id="addExpenseBtn">➕ 添加支出</button>
+    <div class="card-bottom-param">
+      <label style="font-weight:600;">📈 通货膨胀率 %</label>
+      <input type="number" id="expenseGrowth" value="2.2" step="0.1" min="0" max="20" style="width:100px;">
+    </div>
+    <div style="margin-top:16px; background:#e2efe7; border-radius:40px; padding:10px 18px; color:#1a4e36;">
+      ⚡ 总支出已包含负债年利息 <span id="interestInExpense" style="font-weight:700;">¥0</span> (自动同步)
+    </div>
+  </div>
+
+  <div class="actions-bar">
+    <button class="btn btn-primary" id="calculateBtn">✨ 计算自由所需年数</button>
+    <button class="btn" id="resetExampleBtn">🔄 重置为示例数据</button>
+  </div>
+
+  <!-- 结果 -->
+  <div class="result-panel">
+    <div class="freedom-year"><span id="yearsResult">—</span> <small style="font-size:1.8rem; font-weight:500;">年</small></div>
+    <div id="ageMessage" style="font-size:1.2rem; margin-bottom:12px; font-weight:500; color:#1a503a;"></div>
+    <div class="stats-flex">
+      <div class="stat-cell"><div class="label">🎯 自由门槛</div><div class="value" id="targetDisplay">¥0</div></div>
+      <div class="stat-cell"><div class="label">📦 可投资净资产</div><div class="value" id="netWorthValue">¥0</div></div>
+      <div class="stat-cell"><div class="label">💹 第一年储蓄</div><div class="value" id="annualSavingsVal">¥0</div></div>
+    </div>
+    <div class="passive-highlight">
+      <div style="display:flex; justify-content:space-between; font-weight:600;">
+        <span>💤 当前年度被动收入</span>
+        <span id="currentPassiveIncome" style="font-size:1.3rem;">¥0</span>
+      </div>
+      <div style="display:flex; justify-content:space-between; margin-top:10px;">
+        <span>🧾 当前年度总支出 (含利息)</span>
+        <span id="currentExpenseVal" style="font-size:1.2rem;">¥0</span>
+      </div>
+      <div style="display:flex; justify-content:space-between; margin-top:10px;">
+        <span>📊 被动收入覆盖率</span>
+        <span id="passiveCoverage" style="font-weight:700;">0%</span>
+      </div>
+    </div>
+    <div style="margin:24px 0 8px;">
+      <div style="display:flex; justify-content:space-between; margin-bottom:8px; font-weight:500;">
+        <span>自由进度</span>
+        <span id="progressPercent">0%</span>
+      </div>
+      <div class="progress-bg"><div class="progress-fill" id="progressFill"></div></div>
+    </div>
+    <div id="messageDetail" style="margin-top:18px; font-weight:500; color:#b6583c;"></div>
+    <div class="footnote">⚡ 被动收入 = 投资股息/分红 + 其他被动收入 · 主动收入按增长率递增 · 利息已计入支出</div>
+  </div>
+</div>
+
+<script>
+  // 保持原有计算逻辑完全不变，仅微调样式类名，功能代码与v1.5一致，此处省略以节省篇幅，实际使用时请嵌入v1.5的完整脚本。
+  // 为保证功能，以下为完整脚本（与v1.5相同）
+  (function(){
+    "use strict";
+
+    let investments = [];
+    let liabilities = [];
+    let incomes = [];
+    let expenses = [];
+    let otherAssets = [];
+    let nextId = 1000;
+
+    const investmentListEl = document.getElementById('investmentList');
+    const liabilityListEl = document.getElementById('liabilityList');
+    const incomeListEl = document.getElementById('incomeList');
+    const expenseListEl = document.getElementById('expenseList');
+    const otherAssetsListEl = document.getElementById('otherAssetsList');
+    
+    const totalAssetDisplay = document.getElementById('totalAssetDisplay');
+    const totalLiabilityDisplay = document.getElementById('totalLiabilityDisplay');
+    const totalAssetSummary = document.getElementById('totalAssetSummary');
+    const totalLiabilitySummary = document.getElementById('totalLiabilitySummary');
+    const netWorthSummary = document.getElementById('netWorthSummary');
+    const totalIncomeDisplay = document.getElementById('totalIncomeDisplay');
+    const totalExpenseDisplay = document.getElementById('totalExpenseDisplay');
+    const weightedReturnDisplay = document.getElementById('weightedReturnDisplay');
+    const weightedPassiveDisplay = document.getElementById('weightedPassiveDisplay');
+    const activeIncomeSum = document.getElementById('activeIncomeSum');
+    const passiveIncomeSum = document.getElementById('passiveIncomeSum');
+    const totalInterestDisplay = document.getElementById('totalInterestDisplay');
+    const interestInExpense = document.getElementById('interestInExpense');
+
+    const yearsResult = document.getElementById('yearsResult');
+    const ageMessage = document.getElementById('ageMessage');
+    const targetDisplay = document.getElementById('targetDisplay');
+    const netWorthValue = document.getElementById('netWorthValue');
+    const annualSavingsVal = document.getElementById('annualSavingsVal');
+    const progressFill = document.getElementById('progressFill');
+    const progressPercent = document.getElementById('progressPercent');
+    const messageDetail = document.getElementById('messageDetail');
+    const currentPassiveIncome = document.getElementById('currentPassiveIncome');
+    const currentExpenseVal = document.getElementById('currentExpenseVal');
+    const passiveCoverage = document.getElementById('passiveCoverage');
+
+    const freedomMode = document.getElementById('freedomMode');
+    const withdrawalRateInput = document.getElementById('withdrawalRate');
+    const currentAgeInput = document.getElementById('currentAge');
+    const maxYearsInput = document.getElementById('maxYears');
+    const incomeGrowthInput = document.getElementById('incomeGrowth');
+    const expenseGrowthInput = document.getElementById('expenseGrowth');
+
+    function formatMoney(v) { return isNaN(v)||!isFinite(v) ? '¥0' : '¥'+Math.round(v).toLocaleString('zh-CN'); }
+    function escapeHtml(t) { return String(t||'').replace(/[&<>"]/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'})[c]); }
+
+    function computeTotalInterest() {
+      return liabilities.reduce((sum, l) => sum + (Number(l.amount)||0) * (Number(l.interestRate)||0) / 100, 0);
+    }
+
+    function refreshLiabilityInterestDisplay() {
+      document.querySelectorAll('#liabilityList .item-row').forEach(row => {
+        const id = Number(row.dataset.id);
+        const liability = liabilities.find(l => l.id === id);
+        if (liability) {
+          const interest = (Number(liability.amount)||0) * (Number(liability.interestRate)||0) / 100;
+          const interestSpan = row.querySelector('.item-amount span');
+          if (interestSpan) interestSpan.textContent = formatMoney(interest);
+        }
+      });
+      totalInterestDisplay.textContent = formatMoney(computeTotalInterest());
+      renderExpenses();
+    }
+
+    function renderInvestments() {
+      let html = '';
+      investments.forEach(inv => {
+        html += `<div class="item-row" data-type="investment" data-id="${inv.id}">
+          <div class="item-name"><input value="${escapeHtml(inv.name)}" data-field="name"></div>
+          <div class="item-amount"><input type="number" value="${inv.amount}" step="1000" data-field="amount"></div>
+          <div class="item-return"><input type="number" value="${inv.totalReturn}" step="0.1" data-field="totalReturn"></div>
+          <div class="item-passive"><input type="number" value="${inv.passiveReturn}" step="0.1" data-field="passiveReturn"></div>
+          <button class="delete-btn" data-action="delete">✕</button>
+        </div>`;
+      });
+      investmentListEl.innerHTML = html || '<div style="padding:8px;">暂无投资</div>';
+    }
+
+    function renderLiabilities() {
+      let html = '';
+      liabilities.forEach(l => {
+        const interest = (Number(l.amount)||0) * (Number(l.interestRate)||0) / 100;
+        html += `<div class="item-row" data-type="liability" data-id="${l.id}">
+          <div class="item-name"><input value="${escapeHtml(l.name)}" data-field="name"></div>
+          <div class="item-amount"><input type="number" value="${l.amount}" step="1000" data-field="amount"></div>
+          <div class="item-rate"><input type="number" value="${l.interestRate}" step="0.1" min="0" data-field="interestRate"></div>
+          <div class="item-amount"><span style="padding:10px 0;">${formatMoney(interest)}</span></div>
+          <button class="delete-btn" data-action="delete">✕</button>
+        </div>`;
+      });
+      liabilityListEl.innerHTML = html || '<div style="padding:8px;">暂无负债</div>';
+    }
+
+    function renderIncomes() {
+      let html = '';
+      incomes.forEach(inc => {
+        const act = inc.incomeType==='active'?'selected':'';
+        const pas = inc.incomeType==='passive'?'selected':'';
+        html += `<div class="item-row" data-type="income" data-id="${inc.id}">
+          <div class="item-name"><input value="${escapeHtml(inc.name)}" data-field="name"></div>
+          <div class="item-amount"><input type="number" value="${inc.amount}" step="500" data-field="amount"></div>
+          <div class="item-type"><select data-field="incomeType"><option value="active" ${act}>主动</option><option value="passive" ${pas}>被动</option></select></div>
+          <button class="delete-btn" data-action="delete">✕</button>
+        </div>`;
+      });
+      incomeListEl.innerHTML = html || '<div style="padding:8px;">添加收入</div>';
+    }
+
+    function renderExpenses() {
+      let html = '';
+      expenses.forEach(e => {
+        html += `<div class="item-row" data-type="expense" data-id="${e.id}">
+          <div class="item-name"><input value="${escapeHtml(e.name)}" data-field="name"></div>
+          <div class="item-amount"><input type="number" value="${e.amount}" step="500" data-field="amount"></div>
+          <button class="delete-btn" data-action="delete">✕</button>
+        </div>`;
+      });
+      const totalInterest = computeTotalInterest();
+      if (totalInterest > 0 || liabilities.length > 0) {
+        html += `<div class="item-row" style="background:#eef3f0;" data-type="interestReadonly">
+          <div class="item-name"><input value="💸 负债利息 (自动)" readonly class="readonly-input"></div>
+          <div class="item-amount"><input value="${totalInterest}" readonly class="readonly-input"></div>
+          <div style="width:40px;"></div>
+        </div>`;
+      }
+      expenseListEl.innerHTML = html || '<div style="padding:8px;">添加支出</div>';
+    }
+
+    function renderOtherAssets() {
+      let html = '';
+      otherAssets.forEach(a => {
+        html += `<div class="item-row" data-type="otherAsset" data-id="${a.id}">
+          <div class="item-name"><input value="${escapeHtml(a.name)}" data-field="name"></div>
+          <div class="item-amount"><input type="number" value="${a.value}" step="1000" data-field="value"></div>
+          <button class="delete-btn" data-action="delete">✕</button>
+        </div>`;
+      });
+      otherAssetsListEl.innerHTML = html || '<div style="padding:8px;">自住房、汽车等</div>';
+    }
+
+    function updateSummaries() {
+      const totalAsset = investments.reduce((s,i)=> s + (Number(i.amount)||0), 0);
+      const totalLiability = liabilities.reduce((s,l)=> s + (Number(l.amount)||0), 0);
+      const totalInterest = computeTotalInterest();
+      
+      totalAssetDisplay.textContent = formatMoney(totalAsset);
+      totalAssetSummary.textContent = formatMoney(totalAsset);
+      totalLiabilityDisplay.textContent = formatMoney(totalLiability);
+      totalLiabilitySummary.textContent = formatMoney(totalLiability);
+      const netWorth = totalAsset - totalLiability;
+      netWorthSummary.textContent = formatMoney(netWorth);
+      netWorthValue.textContent = formatMoney(netWorth);
+      totalInterestDisplay.textContent = formatMoney(totalInterest);
+      
+      const totalIncome = incomes.reduce((s,i)=> s + (Number(i.amount)||0), 0);
+      totalIncomeDisplay.textContent = formatMoney(totalIncome);
+      const activeTotal = incomes.filter(i=>i.incomeType==='active').reduce((s,i)=> s+(Number(i.amount)||0),0);
+      const passiveOther = incomes.filter(i=>i.incomeType==='passive').reduce((s,i)=> s+(Number(i.amount)||0),0);
+      activeIncomeSum.textContent = formatMoney(activeTotal);
+      passiveIncomeSum.textContent = formatMoney(passiveOther);
+      
+      const baseExpense = expenses.reduce((s,e)=> s + (Number(e.amount)||0), 0);
+      const totalExpense = baseExpense + totalInterest;
+      totalExpenseDisplay.textContent = formatMoney(totalExpense);
+      currentExpenseVal.textContent = formatMoney(totalExpense);
+      interestInExpense.textContent = formatMoney(totalInterest);
+      
+      let weightedReturn = 7.0, weightedPassive = 2.0;
+      if (totalAsset > 0) {
+        weightedReturn = investments.reduce((s,i)=> s + (Number(i.amount)||0)*(Number(i.totalReturn)||0), 0) / totalAsset;
+        weightedPassive = investments.reduce((s,i)=> s + (Number(i.amount)||0)*(Number(i.passiveReturn)||0), 0) / totalAsset;
+      }
+      weightedReturnDisplay.textContent = weightedReturn.toFixed(2)+'%';
+      weightedPassiveDisplay.textContent = weightedPassive.toFixed(2)+'%';
+      
+      const investPassive = totalAsset * (weightedPassive/100);
+      const totalPassive = investPassive + passiveOther;
+      currentPassiveIncome.textContent = formatMoney(totalPassive);
+      const coverage = totalExpense>0 ? (totalPassive/totalExpense*100) : 100;
+      passiveCoverage.textContent = coverage.toFixed(1)+'%';
+    }
+
+    function renderAll() {
+      renderInvestments();
+      renderLiabilities();
+      renderIncomes();
+      renderExpenses();
+      renderOtherAssets();
+      updateSummaries();
+    }
+
+    function handleChange(e) {
+      const target = e.target;
+      const row = target.closest('.item-row');
+      if (!row) return;
+      const type = row.dataset.type;
+      const id = Number(row.dataset.id);
+      
+      if (target.dataset.action === 'delete' || target.classList.contains('delete-btn')) {
+        if (type==='investment') investments = investments.filter(i=>i.id!==id);
+        else if (type==='liability') liabilities = liabilities.filter(l=>l.id!==id);
+        else if (type==='income') incomes = incomes.filter(i=>i.id!==id);
+        else if (type==='expense') expenses = expenses.filter(e=>e.id!==id);
+        else if (type==='otherAsset') otherAssets = otherAssets.filter(a=>a.id!==id);
+        renderAll(); calculate(); return;
+      }
+      
+      if (target.matches('input, select')) {
+        const field = target.dataset.field;
+        let val = target.type==='number' ? parseFloat(target.value) : target.value;
+        if (target.type==='number' && isNaN(val)) val = 0;
+        
+        if (type==='investment') {
+          const inv = investments.find(i=>i.id===id);
+          if (inv) { if (field==='name') inv.name = val; else if (field==='amount') inv.amount = val; else if (field==='totalReturn') inv.totalReturn = val; else if (field==='passiveReturn') inv.passiveReturn = val; }
+        } else if (type==='liability') {
+          const l = liabilities.find(li => li.id === id);
+          if (l) { if (field==='name') l.name = val; else if (field==='amount') l.amount = val; else if (field==='interestRate') l.interestRate = val; }
+          refreshLiabilityInterestDisplay();
+        } else if (type==='income') {
+          const inc = incomes.find(i=>i.id===id);
+          if (inc) { if (field==='name') inc.name = val; else if (field==='amount') inc.amount = val; else if (field==='incomeType') inc.incomeType = val; }
+        } else if (type==='expense') {
+          const exp = expenses.find(e=>e.id===id);
+          if (exp) { if (field==='name') exp.name = val; else if (field==='amount') exp.amount = val; }
+        } else if (type==='otherAsset') {
+          const a = otherAssets.find(a=>a.id===id);
+          if (a) { if (field==='name') a.name = val; else if (field==='value') a.value = val; }
+        }
+        updateSummaries();
+        calculate();
+      }
+    }
+
+    function bindEvents() {
+      [investmentListEl, liabilityListEl, incomeListEl, expenseListEl, otherAssetsListEl].forEach(el => {
+        el.removeEventListener('input', handleChange);
+        el.removeEventListener('click', handleChange);
+        el.addEventListener('input', handleChange);
+        el.addEventListener('click', handleChange);
+      });
+    }
+
+    document.getElementById('addInvestmentBtn').addEventListener('click', ()=>{
+      investments.push({ id: nextId++, name:'新投资', amount:50000, totalReturn:7.0, passiveReturn:2.0 });
+      renderInvestments(); updateSummaries(); calculate();
+    });
+    document.getElementById('addLiabilityBtn').addEventListener('click', ()=>{
+      liabilities.push({ id: nextId++, name:'新负债', amount:100000, interestRate:3.5 });
+      renderLiabilities(); renderExpenses(); updateSummaries(); calculate();
+    });
+    document.getElementById('addIncomeBtn').addEventListener('click', ()=>{
+      incomes.push({ id: nextId++, name:'收入', amount:20000, incomeType:'active' });
+      renderIncomes(); updateSummaries(); calculate();
+    });
+    document.getElementById('addExpenseBtn').addEventListener('click', ()=>{
+      expenses.push({ id: nextId++, name:'支出', amount:15000 });
+      renderExpenses(); updateSummaries(); calculate();
+    });
+    document.getElementById('addOtherAssetBtn').addEventListener('click', ()=>{
+      otherAssets.push({ id: nextId++, name:'自住房', value:2000000 });
+      renderOtherAssets();
+    });
+
+    document.getElementById('toggleOtherAssets').addEventListener('click', ()=>{
+      const panel = document.getElementById('otherAssetsPanel');
+      panel.style.display = panel.style.display === 'none' ? 'block' : 'none';
+    });
+
+    function calculate() {
+      const totalAsset = investments.reduce((s,i)=> s+(Number(i.amount)||0),0);
+      const totalLiability = liabilities.reduce((s,l)=> s+(Number(l.amount)||0),0);
+      const netWorth = totalAsset - totalLiability;
+      const totalInterest = computeTotalInterest();
+      
+      const activeIncome = incomes.filter(i=>i.incomeType==='active').reduce((s,i)=> s+(Number(i.amount)||0),0);
+      const passiveOther = incomes.filter(i=>i.incomeType==='passive').reduce((s,i)=> s+(Number(i.amount)||0),0);
+      const totalIncome = activeIncome + passiveOther;
+      
+      const baseExpense = expenses.reduce((s,e)=> s+(Number(e.amount)||0),0);
+      const totalExpense = baseExpense + totalInterest;
+      
+      let avgReturn = 7.0, avgPassive = 2.0;
+      if (totalAsset>0) {
+        avgReturn = investments.reduce((s,i)=> s+(Number(i.amount)||0)*(Number(i.totalReturn)||0),0)/totalAsset;
+        avgPassive = investments.reduce((s,i)=> s+(Number(i.amount)||0)*(Number(i.passiveReturn)||0),0)/totalAsset;
+      }
+      
+      const withdrawalRate = parseFloat(withdrawalRateInput.value)||4.0;
+      const incomeGrowth = parseFloat(incomeGrowthInput.value)||2.5;
+      const expenseGrowth = parseFloat(expenseGrowthInput.value)||2.2;
+      const maxYears = parseInt(maxYearsInput.value)||80;
+      const ageRaw = currentAgeInput.value.trim();
+      const currentAge = ageRaw!=='' ? parseFloat(ageRaw) : NaN;
+      const hasAge = !isNaN(currentAge) && currentAge>=0;
+      const mode = freedomMode.value;
+
+      annualSavingsVal.textContent = formatMoney(totalIncome - totalExpense);
+      
+      let targetValue, progress;
+      if (mode === 'traditional') {
+        targetValue = totalExpense / (withdrawalRate/100);
+        targetDisplay.textContent = formatMoney(targetValue);
+        progress = targetValue>0 ? Math.min(100, (netWorth/targetValue)*100) : 100;
+      } else {
+        const passiveNow = totalAsset*(avgPassive/100) + passiveOther;
+        targetDisplay.textContent = `被动收入 ≥ ${formatMoney(totalExpense)}`;
+        progress = totalExpense>0 ? Math.min(100, (passiveNow/totalExpense)*100) : 100;
+      }
+      progressFill.style.width = progress+'%';
+      progressPercent.textContent = progress.toFixed(1)+'%';
+      
+      if (mode==='traditional' && netWorth >= targetValue && targetValue>0) {
+        yearsResult.textContent='0'; ageMessage.textContent = hasAge?`🎉 已自由！${Math.floor(currentAge)}岁`:'🎉 已自由！'; return;
+      }
+      if (mode==='passive') {
+        const passiveNow = totalAsset*(avgPassive/100) + passiveOther;
+        if (passiveNow >= totalExpense && totalExpense>0) {
+          yearsResult.textContent='0'; ageMessage.textContent = hasAge?`🎉 被动收入已覆盖支出！${Math.floor(currentAge)}岁`:'🎉 已自由！'; return;
+        }
+      }
+      if (totalExpense<=0) { yearsResult.textContent='0'; ageMessage.textContent='支出为0'; return; }
+
+      let asset = totalAsset, liability = totalLiability, net = netWorth;
+      let activeInc = activeIncome, expense = totalExpense;
+      let years = 0, reached = false;
+      
+      while (years < maxYears && !reached) {
+        const savings = activeInc + passiveOther - expense;
+        asset = asset * (1 + avgReturn/100) + savings;
+        if (asset<0) asset=0;
+        net = asset - liability;
+        activeInc *= (1 + incomeGrowth/100);
+        expense *= (1 + expenseGrowth/100);
+        const currentPassive = asset*(avgPassive/100) + passiveOther;
+        
+        if (mode==='traditional') {
+          const target = expense / (withdrawalRate/100);
+          if (net >= target) reached = true;
+          targetValue = target;
+        } else {
+          if (currentPassive >= expense) reached = true;
+        }
+        years++;
+        if (reached) break;
+        if (years>10 && net < expense*3 && savings<0) break;
+      }
+      
+      if (reached) {
+        yearsResult.textContent = years;
+        ageMessage.textContent = hasAge ? `🧘 预计 ${Math.floor(currentAge+years)} 岁自由` : `🌿 自由可期`;
+      } else {
+        yearsResult.textContent = `>${maxYears}`;
+        ageMessage.textContent = `⚠️ ${maxYears}年内难以达到`;
+      }
+      netWorthValue.textContent = formatMoney(net);
+    }
+
+    function setExample() {
+      investments = [
+        { id: nextId++, name: 'A股', amount:120000, totalReturn:8.0, passiveReturn:2.0 },
+        { id: nextId++, name: '港股', amount:80000, totalReturn:7.5, passiveReturn:2.5 },
+        { id: nextId++, name: '美股', amount:150000, totalReturn:9.0, passiveReturn:1.8 },
+        { id: nextId++, name: '基金', amount:80000, totalReturn:6.5, passiveReturn:2.0 },
+        { id: nextId++, name: '出租房产', amount:300000, totalReturn:5.0, passiveReturn:4.0 }
+      ];
+      liabilities = [
+        { id: nextId++, name:'房贷', amount:400000, interestRate:3.8 },
+        { id: nextId++, name:'车贷', amount:120000, interestRate:4.5 }
+      ];
+      incomes = [
+        { id: nextId++, name:'工资', amount:280000, incomeType:'active' },
+        { id: nextId++, name:'副业收入', amount:40000, incomeType:'passive' }
+      ];
+      expenses = [
+        { id: nextId++, name:'租房', amount:72000 }, { id: nextId++, name:'生活餐饮', amount:60000 },
+        { id: nextId++, name:'交通', amount:18000 }, { id: nextId++, name:'娱乐购物', amount:24000 },
+        { id: nextId++, name:'旅游', amount:15000 }, { id: nextId++, name:'孩子', amount:30000 },
+        { id: nextId++, name:'赡养', amount:12000 }, { id: nextId++, name:'保险', amount:15000 }
+      ];
+      otherAssets = [{ id: nextId++, name:'自住房', value:2500000 }];
+      
+      withdrawalRateInput.value='4.0'; incomeGrowthInput.value='2.5'; expenseGrowthInput.value='2.2';
+      currentAgeInput.value='32'; maxYearsInput.value='80'; freedomMode.value='passive';
+      renderAll(); bindEvents(); calculate();
+    }
+
+    document.getElementById('calculateBtn').addEventListener('click', calculate);
+    document.getElementById('resetExampleBtn').addEventListener('click', setExample);
+    [withdrawalRateInput, currentAgeInput, maxYearsInput, incomeGrowthInput, expenseGrowthInput, freedomMode].forEach(el=> el.addEventListener('input', calculate));
+    setExample();
+  })();
+</script>
+</body>
+</html>
